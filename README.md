@@ -1,1 +1,1 @@
-Tool for managing academic papers read and encountered.
+Tool for managing academic papers.
