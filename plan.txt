@@ -1,0 +1,6 @@
+Loading, adding, and removing papers from dictionaries stored as pickle objects with text based interface
+Automatic bibliographic information retrieval
+SQL databases instead of pickle objects
+Searches using SQL queries
+GUI
+Graph visualization
