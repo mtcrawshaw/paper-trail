@@ -3,6 +3,7 @@ import argparse
 import pickle
 
 def main(args):
+    """ Main function for convertCSVtoPapers.py. """
 
     # Read in CSV file
     # ???

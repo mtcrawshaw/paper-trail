@@ -17,5 +17,10 @@ def load_papers():
 def save_papers(papers):
     """ Saves a list of papers to a pickle object at PAPERS_PATH. """
 
+    # Create directory for papers if it doesn't yet exist.
+    papersDir = os.path.dirname(PAPERS_PATH)
+    if not os.path.isdir(papersDir):
+        os.makedirs(papersDir)
+
     with open(PAPERS_PATH, 'wb') as f:
         pickle.dump(papers, f)
