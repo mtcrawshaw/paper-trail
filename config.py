@@ -1,3 +1,13 @@
-PAPERS_PATH = "data/papers.pkl"
-KEYS = ['title', 'authors', 'labels', 'date_added', 'date_read', 'link',
-        'read', 'recorded', 'parent', 'notes']
+DB_PATH = "data/papers.db"
+KEYS = {
+        'title': 'text',
+        'authors': 'text',
+        'labels': 'text',
+        'date_added': 'date',
+        'date_read': 'date',
+        'link': 'text',
+        'read': 'text',
+        'recorded': 'text',
+        'parent': 'text',
+        'notes': 'text'
+}
