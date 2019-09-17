@@ -1,4 +1,5 @@
-import requests
+from urllib.request import urlopen
+from bs4 import BeautifulSoup
 
 def getBibInfo(link, site='arxiv'):
     """ Get bibliographic info for a paper from a link. """
@@ -14,8 +15,8 @@ def arxiv_getBibInfo(link):
 
     # Get HTML from arxiv page
     paper = {}
-    result = requests.get(link)
-    lines = [line.strip() for line in result.text.split("\n")]
+    page = urlopen(link).read()
+    soup = BeautifulSoup(page, "lxml")
 
     # Define keywords we are looking for
     keywords = {}
@@ -24,36 +25,16 @@ def arxiv_getBibInfo(link):
     keywords[('name', 'citation_online_date')] = 'date_published'
     keywords[('property', 'og:description')] = 'abstract'
 
-    # Check for lines with bibliographic information
+    # Find lines with bibliographic information
     authors = []
-    for line in lines:
-        if line.startswith("<meta"):
+    metaTags = soup.find_all("meta")
+    for metaTag in metaTags:
+        for (keyWord, keyValue), bibKey in keywords.items():
+            if keyWord in metaTag.attrs and metaTag[keyWord] == keyValue:
+                bibValue = metaTag['content']
+                bibValue = bibValue.replace('\n', ' ')
 
-            # Parse "key=value" pairs from line
-            start = line.find(" ") + 1
-            end = line.find("/>")
-            line = line[start:end]
-            items = []
-            runningItem = ""
-            insideQuote = False
-            for i, char in enumerate(line):
-                if (char == ' ' and not insideQuote) or i == len(line) - 1:
-                    key, value = runningItem.split("=")
-                    value = value.strip("\"")
-                    items.append((key, value))
-                    runningItem = ""
-                else:
-                    runningItem += char
-                    if char == '\"':
-                        insideQuote = not insideQuote
-
-            # Check if first key=value pair is in keywords, if so, add
-            # value from second key=value pair to paper
-            if items[0] in keywords:
-                bibKey = keywords[items[0]]
-                bibValue = items[1][1]
-
-                # Handle multiple authors with running list
+                # Handle multiple authors
                 if bibKey == 'authors':
                     authors.append(bibValue)
                 else:
