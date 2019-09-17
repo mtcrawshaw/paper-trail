@@ -74,12 +74,11 @@ def main():
             paper['labels'] = [label.strip() for label in input().split(",")]
 
             # Get parent from user
-            print("Enter name of parent paper. '\
-                  'If parent not in list, enter 'None':")
+            print("Enter name of parent paper. "\
+                  "If parent not in list, enter 'None':", end="")
             parent = input()
             query = "SELECT title FROM papers"
             titles = [row[0] for row in c.execute(query)]
-            print(titles)
             while parent != 'None' and parent not in titles:
                 print("Unrecognized parent name! Try again:")
                 parent = input()

@@ -6,8 +6,10 @@ import sqlite3
 # HARDCODE
 KEYS = {
         'title': 'text',
+        'abstract': 'text',
         'authors': 'text',
         'labels': 'text',
+        'date_published': 'date',
         'date_added': 'date',
         'date_read': 'date',
         'link': 'text',

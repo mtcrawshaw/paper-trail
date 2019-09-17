@@ -42,7 +42,15 @@ def arxiv_getBibInfo(link):
                     authors.append(bibValue)
                 else:
                     paper[bibKey] = bibValue
-    paper['authors'] = str(authors)
+    strAuthors = ""
+    for i, author in enumerate(authors):
+
+        # Switch format from "last, first middle" to "first middle last"
+        names = author.split(",")
+        strAuthors += ("%s %s" % (names[1], names[0])).strip()
+        if i < len(authors) - 1:
+            strAuthors += ", "
+    paper['authors'] = strAuthors
 
     # Clean inputs
     replaceChars = {"\"": "\'"}

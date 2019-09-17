@@ -1,9 +1,12 @@
-SQL database:
-- Multi valued attributes for authors and labels
-Automatic bibliographic information retrieval
-- Arxiv
-- ?
+Add other entities to database:
+- Author
+- Label
+GUI
+Automatic bibliographic information retrieval for other websites
+- ieeexplore.ieee.org/document
+- ncbi.nlm.nih.gov/pmc/articles
+- science.sciencemag.org/content
+- dl.acm.org
 Searches using SQL queries
 Sorting in SQL queries
-GUI
 Graph visualization
