@@ -15,7 +15,10 @@ def arxiv_getBibInfo(link):
 
     # Get HTML from arxiv page
     paper = {}
-    page = urlopen(link).read()
+    try:
+        page = urlopen(link).read()
+    except:
+        return {'err': 'Invalid link!'}
     soup = BeautifulSoup(page, "lxml")
 
     # Define keywords we are looking for
@@ -39,7 +42,17 @@ def arxiv_getBibInfo(link):
                     authors.append(bibValue)
                 else:
                     paper[bibKey] = bibValue
+    paper['authors'] = str(authors)
 
-    paper['authors'] = list(authors)
+    # Clean inputs
+    replaceChars = {"\"": "\'"}
+    for bibKey in paper:
+        for char, newChar in replaceChars.items():
+            paper[bibKey] = paper[bibKey].replace(char, newChar)
+
+    # Format date correctly
+    year, month, day = paper['date_published'].split("/")
+    paper['date_published'] = "%s/%s/%s" % (month, day, year)
+
     return paper
 

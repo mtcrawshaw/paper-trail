@@ -1,6 +1,8 @@
 import os
 import sqlite3
+import datetime
 
+from scraping import getBibInfo
 from config import KEYS, DB_PATH
 
 def print_action_prompt():
@@ -12,7 +14,6 @@ def print_action_prompt():
     msg += "(Anything else) Quit program.\n\n"
     msg += "Action: "
     print(msg, end="")
-
 
 def main():
     """ Main function to run Paper Trail program. """
@@ -58,17 +59,45 @@ def main():
             
         elif action == '2':
 
-            # Collect paper information
-            print("Enter paper information!")
-            paper = {}
-            for key in KEYS:
-                print("%s: " % key, end="")
-                paper[key] = input()
+            # Collect paper information from link
+            print("Enter link to paper: ", end="")
+            link = input()
+            paper = getBibInfo(link)
+
+            # Check for error opening paper
+            if 'err' in paper:
+                print("%s\n" % paper['err'])
+                continue
+
+            # Get labels from user
+            print("Enter labels separated by commas: ", end="")
+            paper['labels'] = [label.strip() for label in input().split(",")]
+
+            # Get parent from user
+            print("Enter name of parent paper. '\
+                  'If parent not in list, enter 'None':")
+            parent = input()
+            query = "SELECT title FROM papers"
+            titles = [row[0] for row in c.execute(query)]
+            print(titles)
+            while parent != 'None' and parent not in titles:
+                print("Unrecognized parent name! Try again:")
+                parent = input()
+            paper['parent'] = parent
+
+            # Add misc info
+            paper['date_added'] = datetime.datetime.now().strftime("%m/%d/%Y")
+            paper['date_read'] = None
+            paper['link'] = link
+            paper['read'] = False
+            paper['recorded'] = False
+            paper['notes'] = None
 
             # Create SQL command
             command = "INSERT INTO papers VALUES ("
-            for i, (key, value) in enumerate(paper.items()):
-                command += "'%s'" % value
+            for i, key in enumerate(KEYS):
+                value = paper[key]
+                command += '"%s"' % value
                 if i < len(paper) - 1:
                     command += ","
             command += ")"

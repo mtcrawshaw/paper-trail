@@ -1,6 +1,8 @@
 SQL database:
 - Multi valued attributes for authors and labels
 Automatic bibliographic information retrieval
+- Arxiv
+- ?
 Searches using SQL queries
 Sorting in SQL queries
 GUI
