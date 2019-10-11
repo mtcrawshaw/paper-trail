@@ -9,7 +9,6 @@ KEYS = {
         'date_read': 'date',
         'link': 'text',
         'read': 'text',
-        'recorded': 'text',
         'parent': 'text',
         'notes': 'text'
 }

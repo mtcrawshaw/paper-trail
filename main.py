@@ -3,14 +3,16 @@ import sqlite3
 import datetime
 
 from scraping import getBibInfo
+from utils import printQueryResult
 from config import KEYS, DB_PATH
 
 def print_action_prompt():
 
     msg = "Enter the number corresponding to an action!\n"
-    msg += "(1) Print list of papers with information.\n"
-    msg += "(2) Add a paper to the list.\n"
-    msg += "(3) Remove a paper from the list.\n"
+    msg += "(1) Print list of all papers.\n"
+    msg += "(2) Print list of papers resulting from a given query.\n"
+    msg += "(3) Add a paper to the list.\n"
+    msg += "(4) Remove a paper from the list.\n"
     msg += "(Anything else) Quit program.\n\n"
     msg += "Action: "
     print(msg, end="")
@@ -46,18 +48,26 @@ def main():
 
         if action == '1':
 
-            # Create SQL query
+            # Create SQL query, execute, and print
             query = "SELECT * FROM papers"
+            printQueryResult(c.execute(query))
 
-            # Execute and iterate over results
-            for row in c.execute(query):
-                
-                # Print value of each key individually
-                for key, value in zip(KEYS, row):
-                    print("%s: %s" % (key, str(value)))
-                print("")
-            
         elif action == '2':
+
+            # Get SQL query
+            print("Query: ", end="")
+            query = input()
+
+            # Try to execute query, catch invalid queries
+            try:
+                result = c.execute(query)
+            except:
+                print('Invalid query given!')
+                continue
+
+            printQueryResult(result)
+
+        elif action == '3':
 
             # Collect paper information from link
             print("Enter link to paper: ", end="")
@@ -105,7 +115,7 @@ def main():
             c.execute(command)
             print("Paper added!\n")
 
-        elif action == '3':
+        elif action == '4':
 
             # Get name of paper to delete
             print("Name of paper: ", end="")

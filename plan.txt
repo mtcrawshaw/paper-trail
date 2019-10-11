@@ -1,12 +1,13 @@
 Add other entities to database:
 - Author
 - Label
-GUI
+Grab abstract, date published, other missing info for papers in csv
 Automatic bibliographic information retrieval for other websites
 - ieeexplore.ieee.org/document
 - ncbi.nlm.nih.gov/pmc/articles
 - science.sciencemag.org/content
 - dl.acm.org
-Searches using SQL queries
-Sorting in SQL queries
+- semanticscholar.org
+- sciencedirect.com
+GUI
 Graph visualization
