@@ -3,8 +3,8 @@ import sqlite3
 import datetime
 
 from scraping import getBibInfo
-from utils import printQueryResult
-from config import KEYS, DB_PATH
+from utils import createTable, printQueryResult
+from config import DB_PATH, KEYS
 
 def print_action_prompt():
 
@@ -27,15 +27,11 @@ def main():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
-    # Create table
+    # Create tables if they don't already exist
     try:
-        command = "CREATE TABLE papers ("
-        for i, (key, key_type) in enumerate(KEYS.items()):
-            command += "%s %s" % (key, key_type)
-            if i < len(KEYS) - 1:
-                command += ", "
-        command += ")"
-        c.execute(command)
+        for tableName, tableKeys in KEYS.items():
+            command = createTable(tableName, tableKeys)
+            c.execute(command)
     except:
         pass
 
@@ -85,7 +81,7 @@ def main():
 
             # Get parent from user
             print("Enter name of parent paper. "\
-                  "If parent not in list, enter 'None':", end="")
+                  "If parent not in list, enter 'None': ", end="")
             parent = input()
             query = "SELECT title FROM papers"
             titles = [row[0] for row in c.execute(query)]
@@ -104,10 +100,10 @@ def main():
 
             # Create SQL command
             command = "INSERT INTO papers VALUES ("
-            for i, key in enumerate(KEYS):
+            for i, key in enumerate(KEYS['papers']):
                 value = paper[key]
                 command += '"%s"' % value
-                if i < len(paper) - 1:
+                if i < len(KEYS['papers']) - 1:
                     command += ","
             command += ")"
 

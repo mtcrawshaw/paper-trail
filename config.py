@@ -1,6 +1,8 @@
 DB_PATH = "data/papers.db"
+
 KEYS = {
-        'title': 'text',
+    'papers': {
+        'title': 'text primary key',
         'abstract': 'text',
         'authors': 'text',
         'labels': 'text',
@@ -10,5 +12,12 @@ KEYS = {
         'link': 'text',
         'read': 'text',
         'parent': 'text',
-        'notes': 'text'
+        'notes': 'text',
+    },
+    'label': {
+        'label': 'text primary key',
+    },
+    'name': {
+        'name': 'text primary key',
+    }
 }
