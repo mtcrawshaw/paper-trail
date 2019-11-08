@@ -1,8 +1,8 @@
 from typing import Dict
 
-from paper import Paper
-from author import Author
-from topic import Topic
+from data.database.paper import Paper
+from data.database.author import Author
+from data.database.topic import Topic
 
 
 class Database:
@@ -59,16 +59,16 @@ class Database:
                     authorName, paperNames=[paper.name], topicNames=paper.topicNames
                 )
             else:
-                self.authors[authorName].papers += [paper.name]
-                self.authors[authorName].topics += paper.topicNames
+                self.authors[authorName].paperNames += [paper.name]
+                self.authors[authorName].topicNames += paper.topicNames
         for topicName in paper.topicNames:
             if topicName not in self.topics:
                 self.topics[topicName] = Topic(
                     topicName, paperNames=[paper.name], authorNames=paper.authorNames
                 )
             else:
-                self.topics[topicName].papers += [paper.name]
-                self.topics[topicName].authors += paper.authorNames
+                self.topics[topicName].paperNames += [paper.name]
+                self.topics[topicName].authorNames += paper.authorNames
 
     def addTopic(self, topic: Topic):
         """

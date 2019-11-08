@@ -1,24 +1,30 @@
-DB_PATH = "data/papers.db"
+DB_PATH = "data/papers.pkl"
 
 KEYS = {
-    'papers': {
-        'title': 'text primary key',
-        'abstract': 'text',
-        'authors': 'text',
-        'labels': 'text',
-        'date_published': 'date',
-        'date_added': 'date',
-        'date_read': 'date',
-        'link': 'text',
-        'read': 'text',
-        'parent': 'text',
-        'notes': 'text',
-    },
-    'topic': {
-        'topic': 'text primary key',
-    },
-    'name': {
-        'name': 'text primary key',
-    }
-    '
+    'papers': [
+        'name',
+        'abstract',
+        'datePublished',
+        'dateAdded',
+        'dateRead',
+        'link',
+        'read',
+        'parents',
+        'children',
+        'notes',
+        'authorNames',
+        'topicNames',
+    ],
+    'topic': [
+        'name',
+        'parents',
+        'children',
+        'paperNames',
+        'authorNames',
+    ],
+    'author': [
+        'name',
+        'paperNames',
+        'topicNames'
+    ]
 }

@@ -14,7 +14,7 @@ def arxiv_getBibInfo(link):
     """ Get bibliographic info for a paper from a link to arxiv.org. """
 
     # Get HTML from arxiv page
-    paper = {}
+    paperArgs = {}
     try:
         page = urlopen(link).read()
     except:
@@ -23,13 +23,13 @@ def arxiv_getBibInfo(link):
 
     # Define keywords we are looking for
     keywords = {}
-    keywords[('name', 'citation_title')] = 'title'
-    keywords[('name', 'citation_author')] = 'authors'
-    keywords[('name', 'citation_online_date')] = 'date_published'
+    keywords[('name', 'citation_title')] = 'name'
+    keywords[('name', 'citation_author')] = 'authorNames'
+    keywords[('name', 'citation_online_date')] = 'datePublished'
     keywords[('property', 'og:description')] = 'abstract'
 
     # Find lines with bibliographic information
-    authors = []
+    paperArgs['authorNames'] = []
     metaTags = soup.find_all("meta")
     for metaTag in metaTags:
         for (keyWord, keyValue), bibKey in keywords.items():
@@ -38,29 +38,28 @@ def arxiv_getBibInfo(link):
                 bibValue = bibValue.replace('\n', ' ')
 
                 # Handle multiple authors
-                if bibKey == 'authors':
-                    authors.append(bibValue)
-                else:
-                    paper[bibKey] = bibValue
-    strAuthors = ""
-    for i, author in enumerate(authors):
+                if bibKey == 'authorNames':
 
-        # Switch format from "last, first middle" to "first middle last"
-        names = author.split(",")
-        strAuthors += ("%s %s" % (names[1], names[0])).strip()
-        if i < len(authors) - 1:
-            strAuthors += ", "
-    paper['authors'] = strAuthors
+                    # Switch format from "last, first middle" to "first middle last"
+                    author = bibValue
+                    names = author.split(",")
+                    author = ("%s %s" % (names[1], names[0])).strip()
+                    paperArgs['authorNames'].append(author)
+                else:
+                    paperArgs[bibKey] = bibValue
 
     # Clean inputs
-    replaceChars = {"\"": "\'"}
-    for bibKey in paper:
-        for char, newChar in replaceChars.items():
-            paper[bibKey] = paper[bibKey].replace(char, newChar)
+    reformat = lambda x: x.replace("\"", "\'")
+    for bibKey, bibValue in paperArgs.items():
+        if isinstance(bibValue, list):
+            for i, item in enumerate(bibValue):
+                bibValue[i] = reformat(item)
+        elif isinstance(bibValue, str):
+            paperArgs[bibKey] = reformat(bibValue)
 
     # Format date correctly
-    year, month, day = paper['date_published'].split("/")
-    paper['date_published'] = "%s/%s/%s" % (month, day, year)
+    year, month, day = paperArgs['datePublished'].split("/")
+    paperArgs['datePublished'] = "%s/%s/%s" % (month, day, year)
 
-    return paper
+    return paperArgs
 

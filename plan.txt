@@ -1,7 +1,7 @@
-Convert away from SQL
-Grab abstract, date published, other missing info for papers in csv
-Allow for multiple parents
-Hierarchy of topics
+Search for papers under a given topic, utilizing topic inheritance
+Sort paper queries by date added
+Write script to convert csv into new database format
+Grab missing data from arxiv links
 Automatic bibliographic information retrieval for other websites
 - ieeexplore.ieee.org/document
 - ncbi.nlm.nih.gov/pmc/articles

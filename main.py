@@ -1,18 +1,18 @@
 import os
-import sqlite3
+import pickle
 import datetime
 
 from scraping import getBibInfo
-from utils import createTable, printQueryResult
+from utils import printTable
 from config import DB_PATH, KEYS
+from data.database.database import Database, Paper
 
 def print_action_prompt():
 
     msg = "Enter the number corresponding to an action!\n"
-    msg += "(1) Print list of all papers.\n"
-    msg += "(2) Print list of papers resulting from a given query.\n"
-    msg += "(3) Add a paper to the list.\n"
-    msg += "(4) Remove a paper from the list.\n"
+    msg += "(1) Print entire table.\n"
+    msg += "(2) Add a paper to the list.\n"
+    msg += "(3) Remove a paper from the list.\n"
     msg += "(Anything else) Quit program.\n\n"
     msg += "Action: "
     print(msg, end="")
@@ -20,20 +20,15 @@ def print_action_prompt():
 def main():
     """ Main function to run Paper Trail program. """
 
-    # Connect to database
+    # Load database. If none exists, create one.
     papersDir = os.path.dirname(DB_PATH)
     if not os.path.isdir(papersDir):
         os.makedirs(papersDir)
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-
-    # Create tables if they don't already exist
-    try:
-        for tableName, tableKeys in KEYS.items():
-            command = createTable(tableName, tableKeys)
-            c.execute(command)
-    except:
-        pass
+    if os.path.isfile(DB_PATH):
+        with open(DB_PATH, 'rb') as f:
+            database = pickle.load(f)
+    else:
+        database = Database()
 
     # Action loop
     while True:
@@ -44,90 +39,82 @@ def main():
 
         if action == '1':
 
-            # Create SQL query, execute, and print
-            query = "SELECT * FROM papers"
-            printQueryResult(c.execute(query))
+            # Get table name to print.
+            print("Enter table name. Should be either 'papers', 'authors', or"\
+            " 'topics': ", end="")
+            tableName = input()
+            while tableName not in ['papers', 'authors', 'topics']:
+                print("Invalid table name! Try again: ", end="")
+                tableName = input()
+
+            # Call utils to print table
+            printTable(database, tableName)
 
         elif action == '2':
 
-            # Get SQL query
-            print("Query: ", end="")
-            query = input()
-
-            # Try to execute query, catch invalid queries
-            try:
-                result = c.execute(query)
-            except:
-                print('Invalid query given!')
-                continue
-
-            printQueryResult(result)
-
-        elif action == '3':
-
-            # Collect paper information from link
+            # Collect paper information from link.
             print("Enter link to paper: ", end="")
             link = input()
-            paper = getBibInfo(link)
+            paperArgs = getBibInfo(link)
 
-            # Check for error opening paper
-            if 'err' in paper:
-                print("%s\n" % paper['err'])
+            # Check for error opening paper.
+            if 'err' in paperArgs:
+                print("%s\n" % paperArgs['err'])
                 continue
 
             # Get labels from user
-            print("Enter labels separated by commas: ", end="")
-            paper['labels'] = [label.strip() for label in input().split(",")]
+            print("Enter topic names separated by commas: ", end="")
+            paperArgs['topicNames'] = [label.strip() for label in input().split(",")]
 
-            # Get parent from user
-            print("Enter name of parent paper. "\
-                  "If parent not in list, enter 'None': ", end="")
-            parent = input()
-            query = "SELECT title FROM papers"
-            titles = [row[0] for row in c.execute(query)]
-            while parent != 'None' and parent not in titles:
+            # Get parents from user
+            print("Enter name of parent papers. "\
+                  "If no parents, just press enter: ", end="")
+            parents = input().split()
+            while not all([parent in database.papers for parent in parents]):
                 print("Unrecognized parent name! Try again:")
-                parent = input()
-            paper['parent'] = parent
+                parents = input().split()
+            paperArgs['parents'] = parents
+
+            # Get children from user
+            print("Enter name of child papers. "\
+                  "If no children, just press enter: ", end="")
+            children = input().split()
+            while not all([child in database.papers for child in children]):
+                print("Unrecognized child name! Try again:")
+                children = input().split()
+            paperArgs['children'] = children
 
             # Add misc info
-            paper['date_added'] = datetime.datetime.now().strftime("%m/%d/%Y")
-            paper['date_read'] = None
-            paper['link'] = link
-            paper['read'] = False
-            paper['recorded'] = False
-            paper['notes'] = None
+            paperArgs['dateAdded'] = datetime.datetime.now().strftime("%m/%d/%Y")
+            paperArgs['dateRead'] = ""
+            paperArgs['link'] = link
+            paperArgs['read'] = False
+            paperArgs['notes'] = ""
 
-            # Create SQL command
-            command = "INSERT INTO papers VALUES ("
-            for i, key in enumerate(KEYS['papers']):
-                value = paper[key]
-                command += '"%s"' % value
-                if i < len(KEYS['papers']) - 1:
-                    command += ","
-            command += ")"
-
-            # Execute command
-            c.execute(command)
+            # Create paper object and add it to database
+            database.addPaper(Paper(**paperArgs))
             print("Paper added!\n")
 
-        elif action == '4':
+        elif action == '3':
 
             # Get name of paper to delete
             print("Name of paper: ", end="")
             paperName = input()
 
             # Create and execute SQL command
-            command = "DELETE FROM papers WHERE title = '%s'" % paperName
-            c.execute(command)
-            print("Paper '%s' removed!\n" % paperName)
+            if paperName in database.papers:
+                del database.papers[paperName]
+                print("Paper '%s' removed!\n" % paperName)
+            else:
+                print("Paper '%s' not in database!\n" % paperName)
 
         else:
             print("Goodbye!\n")
             break
 
-    conn.commit()
-    conn.close()
+        # Save database
+        with open(DB_PATH, 'wb') as f:
+            pickle.dump(database, f)
 
 if __name__ == "__main__":
     main()

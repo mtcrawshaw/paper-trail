@@ -33,4 +33,4 @@ class Paper:
         self.children = children
         self.notes = notes
         self.authorNames = authorNames
-        self.topicNames = labelNames
+        self.topicNames = topicNames
