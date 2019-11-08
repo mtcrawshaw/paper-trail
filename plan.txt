@@ -1,7 +1,7 @@
-Add other entities to database:
-- Author
-- Label
+Convert away from SQL
 Grab abstract, date published, other missing info for papers in csv
+Allow for multiple parents
+Hierarchy of topics
 Automatic bibliographic information retrieval for other websites
 - ieeexplore.ieee.org/document
 - ncbi.nlm.nih.gov/pmc/articles

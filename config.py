@@ -14,10 +14,11 @@ KEYS = {
         'parent': 'text',
         'notes': 'text',
     },
-    'label': {
-        'label': 'text primary key',
+    'topic': {
+        'topic': 'text primary key',
     },
     'name': {
         'name': 'text primary key',
     }
+    '
 }
