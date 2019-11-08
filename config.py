@@ -1,4 +1,4 @@
-DB_PATH = "data/papers.pkl"
+DB_PATH = "data/storage/papers.pkl"
 
 KEYS = {
     'papers': [
