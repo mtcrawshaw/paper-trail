@@ -15,6 +15,6 @@ KEYS = {
         "authorNames",
         "topicNames",
     ],
-    "topic": ["name", "parents", "children", "paperNames", "authorNames",],
-    "author": ["name", "paperNames", "topicNames"],
+    "topics": ["name", "parents", "children", "paperNames", "authorNames",],
+    "authors": ["name", "paperNames", "topicNames"],
 }

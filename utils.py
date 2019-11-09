@@ -1,9 +1,12 @@
 from config import KEYS
 
 
-def printTable(database, tableName):
+def printTable(table, tableName):
+    """
+    Prints a table of database components (papers, authors, or topics).
+    """
 
-    for name, item in getattr(database, tableName).items():
+    for name, item in table.items():
         print("------------------------\n")
         for key in KEYS[tableName]:
             print("%s: %s" % (key, getattr(item, key)))

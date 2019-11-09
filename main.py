@@ -12,8 +12,9 @@ def print_action_prompt():
 
     msg = "Enter the number corresponding to an action!\n"
     msg += "(1) Print entire table.\n"
-    msg += "(2) Add a paper to the list.\n"
-    msg += "(3) Remove a paper from the list.\n"
+    msg += "(2) Print papers within a topic.\n"
+    msg += "(3) Add a paper to the list.\n"
+    msg += "(4) Remove a paper from the list.\n"
     msg += "(Anything else) Quit program.\n\n"
     msg += "Action: "
     print(msg, end="")
@@ -53,9 +54,42 @@ def main():
                 tableName = input()
 
             # Call utils to print table
-            printTable(database, tableName)
+            printTable(getattr(database, tableName), tableName)
 
-        elif action == "2":
+        elif action == '2':
+
+            # Get topic name from user.
+            print("Enter topic name: ", end="")
+            topicName = input()
+
+            # Output papers from topic, if topic is in database.
+            if topicName in database.topics:
+
+                # Get all sub-topics of topicName by BFS
+                topics = []
+                topicQueue = [topicName]
+                while len(topicQueue) > 0:
+                    currentTopic = topicQueue.pop(0)
+                    topics.append(currentTopic)
+                    topicQueue += database.topics[currentTopic].children
+
+                # Get list of all papers under any topic in ``topics``.
+                resultPapers = {}
+                for paperName in database.papers:
+                    paper = database.papers[paperName]
+
+                    for topic in topics:
+                        if topic in paper.topicNames:
+                            resultPapers[paperName] = paper
+                            break
+
+                # Print out resulting papers
+                printTable(resultPapers, 'papers')
+
+            else:
+                print("Topic '%s' not in database!\n" % topicName)
+
+        elif action == "3":
 
             # Collect paper information from link.
             print("Enter link to paper: ", end="")
@@ -104,7 +138,7 @@ def main():
             database.addPaper(Paper(**paperArgs))
             print("Paper added!\n")
 
-        elif action == "3":
+        elif action == "4":
 
             # Get name of paper to delete
             print("Name of paper: ", end="")

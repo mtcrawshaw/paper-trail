@@ -1,3 +1,4 @@
+Options to edit existing papers, add topics, or edit topics
 Search for papers under a given topic, utilizing topic inheritance
 Sort paper queries by date added
 Write script to convert csv into new database format
