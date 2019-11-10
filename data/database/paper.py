@@ -1,4 +1,4 @@
-from typing import List
+from typing import Set
 
 
 class Paper:
@@ -9,28 +9,28 @@ class Paper:
     def __init__(
         self,
         name: str,
-        abstract: str = [],
+        abstract: str = "",
         datePublished: str = "",
         dateAdded: str = "",
         dateRead: str = "",
         link: str = "",
         read: bool = False,
-        parents: List[str] = [],
-        children: List[str] = [],
+        parents: Set[str] = set(),
+        children: Set[str] = set(),
         notes: str = "",
-        authorNames: List[str] = [],
-        topicNames: List[str] = [],
+        authorNames: Set[str] = set(),
+        topicNames: Set[str] = set(),
     ):
 
-        self.name = name
-        self.abstract = abstract
-        self.datePublished = datePublished
-        self.dateAdded = dateAdded
-        self.dateRead = dateRead
-        self.link = link
-        self.read = read
-        self.parents = parents
-        self.children = children
-        self.notes = notes
-        self.authorNames = authorNames
-        self.topicNames = topicNames
+        self.name = str(name)
+        self.abstract = str(abstract)
+        self.datePublished = str(datePublished)
+        self.dateAdded = str(dateAdded)
+        self.dateRead = str(dateRead)
+        self.link = str(link)
+        self.read = bool(read)
+        self.parents = set(parents)
+        self.children = set(children)
+        self.notes = str(notes)
+        self.authorNames = set(authorNames)
+        self.topicNames = set(topicNames)

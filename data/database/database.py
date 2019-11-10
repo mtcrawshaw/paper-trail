@@ -47,28 +47,28 @@ class Database:
 
         # Add paper to list of children for each parent, and vice versa.
         for parentName in paper.parents:
-            self.papers[parentName].children += [paper.name]
+            self.papers[parentName].children.add(paper.name)
         for childName in paper.children:
-            self.papers[childName].parents += [paper.name]
+            self.papers[childName].parents.add(paper.name)
 
         # Add authors and topics to database, if they don't already exist.
         # If they do exist, add paper and topics/authors.
         for authorName in paper.authorNames:
             if authorName not in self.authors:
                 self.authors[authorName] = Author(
-                    authorName, paperNames=[paper.name], topicNames=paper.topicNames
+                    authorName, paperNames={paper.name}, topicNames=paper.topicNames
                 )
             else:
-                self.authors[authorName].paperNames += [paper.name]
-                self.authors[authorName].topicNames += paper.topicNames
+                self.authors[authorName].paperNames.add(paper.name)
+                self.authors[authorName].topicNames |= paper.topicNames
         for topicName in paper.topicNames:
             if topicName not in self.topics:
                 self.topics[topicName] = Topic(
-                    topicName, paperNames=[paper.name], authorNames=paper.authorNames
+                    topicName, paperNames={paper.name}, authorNames=paper.authorNames
                 )
             else:
-                self.topics[topicName].paperNames += [paper.name]
-                self.topics[topicName].authorNames += paper.authorNames
+                self.topics[topicName].paperNames.add(paper.name)
+                self.topics[topicName].authorNames |= paper.authorNames
 
     def addTopic(self, topic: Topic):
         """
@@ -104,9 +104,9 @@ class Database:
         for authorName in topic.authorNames:
             if authorName not in self.authors:
                 self.authors[authorName] = Author(
-                    authorName, paperNames=[], topicNames=[topic.name]
+                    authorName, paperNames=set(), topicNames={topic.name}
                 )
             else:
-                self.authors[authorName].topic += [topic.name]
+                self.authors[authorName].topicNames.add(topic.name)
                 # Don't need to add to self.authors[authorName].papers, since
                 # the topic must be given without any papers.

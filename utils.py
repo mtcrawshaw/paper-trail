@@ -11,3 +11,7 @@ def printTable(table, tableName):
         for key in KEYS[tableName]:
             print("%s: %s" % (key, getattr(item, key)))
         print("")
+
+    if len(table) == 0:
+        print("No results!")
+        print("")

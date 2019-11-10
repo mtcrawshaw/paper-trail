@@ -1,4 +1,4 @@
-from typing import List
+from typing import Set
 
 
 class Author:
@@ -9,10 +9,10 @@ class Author:
     def __init__(
         self,
         name: str,
-        paperNames: List[str] = [],
-        topicNames: List[str] = [],
+        paperNames: Set[str] = set(),
+        topicNames: Set[str] = set(),
     ):
 
         self.name = name
-        self.paperNames = paperNames
-        self.topicNames = topicNames
+        self.paperNames = set(paperNames)
+        self.topicNames = set(topicNames)

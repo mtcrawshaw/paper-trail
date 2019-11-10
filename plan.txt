@@ -1,5 +1,7 @@
 Options to edit existing papers, add topics, or edit topics
 Search for papers under a given topic, utilizing topic inheritance
+Fix bug where paper names can't have commas
+Search for papers by graph proximity
 Sort paper queries by date added
 Write script to convert csv into new database format
 Grab missing data from arxiv links

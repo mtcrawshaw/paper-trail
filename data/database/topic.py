@@ -1,4 +1,4 @@
-from typing import List
+from typing import Set
 
 
 class Topic:
@@ -9,14 +9,21 @@ class Topic:
     def __init__(
         self,
         name: str,
-        parents: List[str] = [],
-        children: List[str] = [],
-        paperNames: List[str] = [],
-        authorNames: List[str] = [],
+        parents: Set[str] = set(),
+        children: Set[str] = set(),
+        paperNames: Set[str] = set(),
+        authorNames: Set[str] = set(),
     ):
 
-        self.name = name
-        self.parents = parents
-        self.children = children
-        self.paperNames = paperNames
-        self.authorNames = authorNames
+        self.name = str(name)
+        self.parents = set(parents)
+        self.children = set(children)
+        self.paperNames = set(paperNames)
+        self.authorNames = set(authorNames)
+
+    def __repr__(self):
+        """
+        Returns string representation of self.
+        """
+
+        return str(self.__dict__)

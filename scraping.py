@@ -31,7 +31,7 @@ def arxiv_getBibInfo(link):
     keywords[("property", "og:description")] = "abstract"
 
     # Find lines with bibliographic information
-    paperArgs["authorNames"] = []
+    paperArgs["authorNames"] = set()
     metaTags = soup.find_all("meta")
     for metaTag in metaTags:
         for (keyWord, keyValue), bibKey in keywords.items():
@@ -46,7 +46,7 @@ def arxiv_getBibInfo(link):
                     author = bibValue
                     names = author.split(",")
                     author = ("%s %s" % (names[1], names[0])).strip()
-                    paperArgs["authorNames"].append(author)
+                    paperArgs["authorNames"].add(author)
                 else:
                     paperArgs[bibKey] = bibValue
 
