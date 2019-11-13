@@ -1,4 +1,5 @@
 Add tests for existing functionality
+Add codecov
 Search for papers by graph proximity
 Sort paper queries by date added
 Tab to autocomplete paper/author/topic name?
