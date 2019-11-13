@@ -68,25 +68,8 @@ def main():
             # Output papers from topic, if topic is in database.
             if topicName in database.topics:
 
-                # Get all sub-topics of topicName by BFS
-                topics = []
-                topicQueue = [topicName]
-                while len(topicQueue) > 0:
-                    currentTopic = topicQueue.pop(0)
-                    topics.append(currentTopic)
-                    topicQueue += list(database.topics[currentTopic].children)
-
-                # Get list of all papers under any topic in ``topics``.
-                resultPapers = {}
-                for paperName in database.papers:
-                    paper = database.papers[paperName]
-
-                    for topic in topics:
-                        if topic in paper.topicNames:
-                            resultPapers[paperName] = paper
-                            break
-
-                # Print out resulting papers
+                # Get and print resulting papers
+                resultPapers = database.getPapersFromTopics([topicName])
                 printTable(resultPapers, "papers")
 
             else:
@@ -106,8 +89,13 @@ def main():
 
             # Get topics from user
             print("Enter topic names separated by commas: ", end="")
-            paperArgs["topicNames"] = set([label.strip() for label in input().split(",")])
-            if len(paperArgs["topicNames"]) == 1 and next(iter(paperArgs["topicNames"])) == "":
+            paperArgs["topicNames"] = set(
+                [label.strip() for label in input().split(",")]
+            )
+            if (
+                len(paperArgs["topicNames"]) == 1
+                and next(iter(paperArgs["topicNames"])) == ""
+            ):
                 paperArgs["topicNames"] = set()
 
             # Get parents from user
@@ -149,7 +137,7 @@ def main():
 
             # Create paper object and add it to database
             database.addPaper(Paper(**paperArgs))
-            print("Paper '%s' added!\n" % paperArgs['name'])
+            print("Paper '%s' added!\n" % paperArgs["name"])
 
         elif action == "4":
 
@@ -157,11 +145,8 @@ def main():
             print("Name of paper: ", end="")
             paperName = input()
 
-            if paperName in database.papers:
-                del database.papers[paperName]
-                print("Paper '%s' removed!\n" % paperName)
-            else:
-                print("Paper '%s' not in database!\n" % paperName)
+            database.removePaper(paperName)
+            print("Paper '%s' removed!\n" % paperName)
 
         elif action == "5":
 
@@ -195,16 +180,7 @@ def main():
                     children = set()
 
             # Add topic to database
-            database.topics[topicName] = Topic(
-                topicName, parents=parents, children=children
-            )
-
-            # Add topic as child to all parents, and as parent to all children
-            for parent in parents:
-                database.topics[parent].children.add(topicName)
-            for child in children:
-                database.topics[child].parents.add(topicName)
-
+            database.addTopic(Topic(topicName, parents=parents, children=children))
             print("Topic '%s' added!\n" % topicName)
 
         elif action == "6":
@@ -212,39 +188,10 @@ def main():
             # Get name of topic
             print("Name of topic: ", end="")
             topicName = input()
-            if topicName in database.topics:
-                if (
-                    len(
-                        database.topics[topicName].paperNames
-                        | database.topics[topicName].authorNames
-                    )
-                    > 0
-                ):
-                    print(
-                        "There still exists papers and/or authors in the "
-                        "database under this topic. If you remove this topic, it "
-                        "will be removed from all papers and authors as a listed "
-                        "topic. Are you sure you want to remove this topic? "
-                        "Enter Y to continue, and anything else to cancel: ",
-                        end="",
-                    )
-                    action = input()
-                    if action != "Y":
-                        continue
 
-                # Remove all references to topic
-                for child in database.topics[topicName].children:
-                    database.topics[child].parents.remove(topicName)
-                for parent in database.topics[topicName].parents:
-                    database.topics[parent].children.remove(topicName)
-                for paperName in database.topics[topicName].paperNames:
-                    database.papers[paperName].topicNames.remove(topicName)
-                for authorName in database.topics[topicName].authorNames:
-                    database.authors[authorName].topicNames.remove(topicName)
-                del database.topics[topicName]
-                print("Topic '%s' removed!\n" % topicName)
-            else:
-                print("Topic '%s' not in database!\n" % topicName)
+            # Remove topic from database
+            database.removeTopic(topicName)
+            print("Topic '%s' removed!\n" % topicName)
 
         else:
             print("Goodbye!\n")

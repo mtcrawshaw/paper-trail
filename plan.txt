@@ -1,16 +1,23 @@
-Options to edit existing papers, add topics, or edit topics
-Search for papers under a given topic, utilizing topic inheritance
+Make web scraping throw error instead of return error string
+Removing error checking inputs, use try catch instead
 Fix bug where paper names can't have commas
+Add tests for existing functionality
 Search for papers by graph proximity
 Sort paper queries by date added
+Tab to autocomplete paper/author/topic name?
 Write script to convert csv into new database format
 Grab missing data from arxiv links
+Add support for books
+Port to flask app
 Automatic bibliographic information retrieval for other websites
+- dl.acm.org
+- openreview.net
 - ieeexplore.ieee.org/document
 - ncbi.nlm.nih.gov/pmc/articles
 - science.sciencemag.org/content
-- dl.acm.org
 - semanticscholar.org
 - sciencedirect.com
 GUI
 Graph visualization
+Keybord shortcuts for GUI
+

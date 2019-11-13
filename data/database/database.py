@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 
 from data.database.paper import Paper
 from data.database.author import Author
@@ -79,25 +79,30 @@ class Database:
         if topic.name in self.topics:
             raise ValueError("Topic with name '%s' already in database." % topic.name)
 
-        # Check to see if topic is given with any papers. If so, we can't add
-        # it, since we can't add papers without information about their
-        # authors.
-        if len(topic.paperNames) > 0:
+        # Check to see if topic is given with any papers that don't already
+        # exist. If so, we can't add it, since we can't add papers without
+        # information about their authors.
+        if any(paperName not in self.papers for paperName in topic.paperNames):
             raise ValueError(
                 "Can't add topic '%s' because it has papers "
-                "already associated with it."
+                "associated with it that aren't yet in database."
             )
 
         # If the topic passes above checks, add it to database.
         self.topics[topic.name] = topic
 
         # Add children and parent topics to database, if they don't already exist.
+        # If they do exist, add new topic as parent/child.
         for childName in topic.children:
             if childName not in self.topics:
                 self.topics[childName] = Topic(childName, parents=[topic.name])
+            else:
+                self.topics[childName].parents.add(topic.name)
         for parentName in topic.parents:
             if parentName not in self.topics:
                 self.topics[parentName] = Topic(parentName, children=[topic.name])
+            else:
+                self.topics[parentName].children.add(topic.name)
 
         # Add authors and papers to database, if they don't already exist.
         # If they do exist, add topic and papers/authors.
@@ -108,5 +113,116 @@ class Database:
                 )
             else:
                 self.authors[authorName].topicNames.add(topic.name)
-                # Don't need to add to self.authors[authorName].papers, since
-                # the topic must be given without any papers.
+        for paperName in topic.paperNames:
+            # Papers must already exist, by the check earlier in this method.
+            self.papers[paperName].topicNames.add(topic.name)
+
+    def removePaper(self, paperName: str):
+        """
+        Removes a paper from the database.
+        """
+
+        if paperName in self.papers:
+
+            # Remove as child from parent papers, and as parent from child papers
+            for childName in self.papers[paperName].children:
+                self.papers[childName].parents.remove(paperName)
+            for parentName in self.papers[paperName].parents:
+                self.papers[parentName].children.remove(paperName)
+
+            # Set children of paperName as children of parents of paperName, to
+            # preserve ancestor-descendant relationships.
+            for childName in self.papers[paperName].children:
+                for parentName in self.papers[paperName].parents:
+                    self.papers[childName].parents.add(parentName)
+                    self.papers[parentName].children.add(childName)
+
+            # Remove from authors and topics
+            for authorName in self.papers[paperName].authorNames:
+                self.authors[authorName].paperNames.remove(paperName)
+            for topicName in self.papers[paperName].topicNames:
+                self.topics[topicName].paperNames.remove(paperName)
+
+            # Remove from papers
+            del self.papers[paperName]
+
+        else:
+            raise ValueError("Paper '%s' not in database!\n" % paperName)
+
+    def removeTopic(self, topicName: str):
+        """
+        Removes a topic from the database.
+        """
+
+        if topicName in self.topics:
+
+            # Remove as child from parent topics, and as parent from child topics
+            for childName in self.topics[topicName].children:
+                self.topics[childName].parents.remove(topicName)
+            for parentName in self.topics[topicName].parents:
+                self.topics[parentName].children.remove(topicName)
+
+            # Set children of topicName as children of parents of topicName, to
+            # preserve ancestor-descendant relationships.
+            for childName in self.topics[topicName].children:
+                for parentName in self.topics[topicName].parents:
+                    self.topics[childName].parents.add(parentName)
+                    self.topics[parentName].children.add(childName)
+
+            # Set papers under removed topic under parents of removed topic.
+            for paperName in self.topics[topicName].paperNames:
+                for parentName in self.topics[topicName].parents:
+                    self.papers[paperName].topicNames.add(parentName)
+                    self.topics[parentName].paperNames.add(paperName)
+
+            # Remove from papers and authors
+            for paperName in self.topics[topicName].paperNames:
+                self.papers[paperName].topicNames.remove(topicName)
+            for authorName in self.topics[topicName].authorNames:
+                self.authors[authorName].topicNames.remove(topicName)
+
+            # Remove from topics
+            del self.topics[topicName]
+
+        else:
+            raise ValueError("Topic '%s' not in database!\n" % topicName)
+
+    def getSubtopics(self, topicName: str) -> List[Topic]:
+        """
+        Returns all descendant topics of a given topic.
+        """
+
+        topics = []
+        topicQueue = [topicName]
+        while len(topicQueue) > 0:
+            currentTopic = topicQueue.pop(0)
+            topics.append(currentTopic)
+            topicQueue += list(self.topics[currentTopic].children)
+
+        return topics
+
+    def getPapersFromTopics(self, topicNames: List[str]) -> List[Paper]:
+        """
+        Returns all papers under a list of given topics, including the papers
+        under sub-topics of given topics.
+        """
+
+        paperNames = []
+
+        # Iterate over topicNames
+        for topicName in topicNames:
+
+            if topicName not in self.topics:
+                raise ValueError("Topic '%s' not in database!\n" % topicName)
+
+            # Get subtopics and paper names under subtopics
+            subtopicNames = self.getSubtopics(topicName)
+            for subtopicName in subtopicNames:
+                paperNames += list(self.topics[subtopicName].paperNames)
+
+        # Remove redundant paper names
+        paperNames = list(set(paperNames))
+
+        # Get papers from paperNames
+        papers = {paperName: self.papers[paperName] for paperName in paperNames}
+        return papers
