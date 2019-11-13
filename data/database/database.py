@@ -82,9 +82,6 @@ class Database:
                 "associated with it that aren't yet in database."
             )
 
-        # If the topic passes above checks, add it to database.
-        self.topics[topic.name] = topic
-
         # Add children and parent topics to database, if they don't already exist.
         # If they do exist, add new topic as parent/child.
         for childName in topic.children:
@@ -110,6 +107,17 @@ class Database:
         for paperName in topic.paperNames:
             # Papers must already exist, by the check earlier in this method.
             self.papers[paperName].topicNames.add(topic.name)
+
+        # For any papers under topic, add authors of those papers to topic, and
+        # add topic to those authors.
+        for paperName in topic.paperNames:
+            for authorName in self.papers[paperName].authorNames:
+                topic.authorNames.add(authorName)
+                self.authors[authorName].topicNames.add(topic.name)
+        
+        # Add topic to database.
+        self.topics[topic.name] = topic
+
 
     def removePaper(self, paperName: str):
         """
@@ -220,3 +228,11 @@ class Database:
         # Get papers from paperNames
         papers = {paperName: self.papers[paperName] for paperName in paperNames}
         return papers
+
+    def __eq__(self, other):
+        """
+        Returns True if self == other, otherwise returns False.
+        """
+
+        attributes = ['papers', 'topics', 'authors']
+        return all(getattr(self, attr) == getattr(other, attr) for attr in attributes)

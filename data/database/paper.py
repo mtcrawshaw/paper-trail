@@ -34,3 +34,24 @@ class Paper:
         self.notes = str(notes)
         self.authorNames = set(authorNames)
         self.topicNames = set(topicNames)
+
+    def __eq__(self, other):
+        """
+        Returns True if self == other, otherwise returns False.
+        """
+        attributes = [
+            'name',
+            'abstract',
+            'datePublished',
+            'dateAdded',
+            'dateRead',
+            'link',
+            'read',
+            'parents',
+            'children',
+            'notes',
+            'authorNames',
+            'topicNames',
+        ]
+        return all(getattr(self, attr) == getattr(other, attr) for attr in
+                attributes)

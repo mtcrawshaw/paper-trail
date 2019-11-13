@@ -27,3 +27,17 @@ class Topic:
         """
 
         return str(self.__dict__)
+
+    def __eq__(self, other):
+        """
+        Returns True if self == other, otherwise returns False.
+        """
+        attributes = [
+            'name',
+            'parents',
+            'children',
+            'paperNames',
+            'authorNames',
+        ]
+        return all(getattr(self, attr) == getattr(other, attr) for attr in
+                attributes)
