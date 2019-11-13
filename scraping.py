@@ -17,10 +17,7 @@ def arxiv_getBibInfo(link):
 
     # Get HTML from arxiv page
     paperArgs = {}
-    try:
-        page = urlopen(link).read()
-    except:
-        return {"err": "Invalid link!"}
+    page = urlopen(link).read()
     soup = BeautifulSoup(page, "lxml")
 
     # Define keywords we are looking for

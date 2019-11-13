@@ -31,16 +31,10 @@ class Database:
         # Check to see if parents or children don't exist in database.
         for parentName in paper.parents:
             if parentName not in self.papers:
-                raise ValueError(
-                    "Paper '%s' lists paper '%s' as parent, but"
-                    " paper '%s' is not in database."
-                )
+                raise ValueError("Paper '%s' not in database." % parentName)
         for childName in paper.children:
             if childName not in self.papers:
-                raise ValueError(
-                    "Paper '%s' lists paper '%s' as child, but"
-                    " paper '%s' is not in database."
-                )
+                raise ValueError("Paper '%s' not in database." % childName)
 
         # If the paper passes above checks, add it to database.
         self.papers[paper.name] = paper
@@ -147,7 +141,7 @@ class Database:
             del self.papers[paperName]
 
         else:
-            raise ValueError("Paper '%s' not in database!\n" % paperName)
+            raise ValueError("Paper '%s' not in database." % paperName)
 
     def removeTopic(self, topicName: str):
         """
@@ -185,7 +179,7 @@ class Database:
             del self.topics[topicName]
 
         else:
-            raise ValueError("Topic '%s' not in database!\n" % topicName)
+            raise ValueError("Topic '%s' not in database." % topicName)
 
     def getSubtopics(self, topicName: str) -> List[Topic]:
         """
@@ -213,7 +207,7 @@ class Database:
         for topicName in topicNames:
 
             if topicName not in self.topics:
-                raise ValueError("Topic '%s' not in database!\n" % topicName)
+                raise ValueError("Topic '%s' not in database." % topicName)
 
             # Get subtopics and paper names under subtopics
             subtopicNames = self.getSubtopics(topicName)

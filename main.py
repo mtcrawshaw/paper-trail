@@ -52,12 +52,12 @@ def main():
                 end="",
             )
             tableName = input()
-            while tableName not in ["papers", "authors", "topics"]:
-                print("Invalid table name! Try again: ", end="")
-                tableName = input()
 
             # Call utils to print table
-            printTable(getattr(database, tableName), tableName)
+            try:
+                printTable(getattr(database, tableName), tableName)
+            except AttributeError:
+                print("Database has no table '%s'" % tableName)
 
         elif action == "2":
 
@@ -65,26 +65,24 @@ def main():
             print("Enter topic name: ", end="")
             topicName = input()
 
-            # Output papers from topic, if topic is in database.
-            if topicName in database.topics:
-
-                # Get and print resulting papers
+            # Get and print resulting papers
+            try:
                 resultPapers = database.getPapersFromTopics([topicName])
                 printTable(resultPapers, "papers")
-
-            else:
-                print("Topic '%s' not in database!\n" % topicName)
+            except ValueError as err:
+                print("%s\n" % err)
 
         elif action == "3":
 
             # Collect paper information from link.
             print("Enter link to paper: ", end="")
             link = input()
-            paperArgs = getBibInfo(link)
 
             # Check for error opening paper.
-            if "err" in paperArgs:
-                print("%s\n" % paperArgs["err"])
+            try:
+                paperArgs = getBibInfo(link)
+            except ValueError as err:
+                print("Error opening link: \"%s\"\n" % err)
                 continue
 
             # Get topics from user
@@ -100,32 +98,30 @@ def main():
 
             # Get parents from user
             print(
-                "Enter name of parent papers. " "If no parents, just press enter: ",
+                "Enter name of parent papers, individually, and enter an empty "\
+                "entry when done: ",
                 end="",
             )
-            parents = set(input().split(","))
-            if len(parents) == 1 and next(iter(parents)) == "":
-                parents = set()
-            while not all([parent in database.papers for parent in parents]):
-                print("Unrecognized parent name! Try again: ", end="")
-                parents = set(input().split(","))
-                if len(parents) == 1 and next(iter(parents)) == "":
-                    parents = set()
+            parents = []
+            parent = input()
+            while parent != "":
+                parents.append(parent)
+                print("Next parent: ", end="")
+                parent = input()
             paperArgs["parents"] = parents
 
             # Get children from user
             print(
-                "Enter name of child papers. " "If no children, just press enter: ",
+                "Enter name of child papers, individually, and enter an empty "\
+                "entry when done: ",
                 end="",
             )
-            children = set(input().split(","))
-            if len(children) == 1 and next(iter(children)) == "":
-                children = set()
-            while not all([child in database.papers for child in children]):
-                print("Unrecognized child name! Try again: ", end="")
-                children = set(input().split(","))
-                if len(children) == 1 and next(iter(children)) == "":
-                    children = set()
+            children = []
+            child = input()
+            while child != "":
+                children.append(child)
+                print("Next child: ", end="")
+                child = input()
             paperArgs["children"] = children
 
             # Add misc info
@@ -136,8 +132,12 @@ def main():
             paperArgs["notes"] = ""
 
             # Create paper object and add it to database
-            database.addPaper(Paper(**paperArgs))
-            print("Paper '%s' added!\n" % paperArgs["name"])
+            try:
+                database.addPaper(Paper(**paperArgs))
+                print("Paper '%s' added!\n" % paperArgs["name"])
+            except (KeyError, ValueError) as err:
+                print("%s\n" % err)
+                continue
 
         elif action == "4":
 
@@ -145,39 +145,30 @@ def main():
             print("Name of paper: ", end="")
             paperName = input()
 
-            database.removePaper(paperName)
-            print("Paper '%s' removed!\n" % paperName)
+            try:
+                database.removePaper(paperName)
+                print("Paper '%s' removed!\n" % paperName)
+            except ValueError as err:
+                print("%s\n" % err)
+                continue
 
         elif action == "5":
 
             # Get name of topic, making sure that it doesn't already exist
             print("Name of topic: ", end="")
             topicName = input()
-            if topicName in database.topics:
-                print("Topic already in database!\n")
-                continue
 
             # Get name of parents
             print("Name of parents, separated by commas: ", end="")
             parents = set(input().split(","))
             if len(parents) == 1 and next(iter(parents)) == "":
                 parents = set()
-            while not all([parent in database.topics for parent in parents]):
-                print("Unrecognized parent name! Try again: ", end="")
-                parents = set(input().split(","))
-                if len(parents) == 1 and next(iter(parents)) == "":
-                    parents = set()
 
             # Get name of children
             print("Name of children, separated by commas: ", end="")
             children = set(input().split(","))
             if len(children) == 1 and next(iter(children)) == "":
                 children = set()
-            while not all([child in database.topics for child in children]):
-                print("Unrecognized child name! Try again: ", end="")
-                children = set(input().split(","))
-                if len(children) == 1 and next(iter(children)) == "":
-                    children = set()
 
             # Add topic to database
             database.addTopic(Topic(topicName, parents=parents, children=children))
@@ -190,8 +181,12 @@ def main():
             topicName = input()
 
             # Remove topic from database
-            database.removeTopic(topicName)
-            print("Topic '%s' removed!\n" % topicName)
+            try:
+                database.removeTopic(topicName)
+                print("Topic '%s' removed!\n" % topicName)
+            except ValueError as err:
+                print("%s\n" % err)
+                continue
 
         else:
             print("Goodbye!\n")

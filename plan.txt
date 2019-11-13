@@ -1,6 +1,3 @@
-Make web scraping throw error instead of return error string
-Removing error checking inputs, use try catch instead
-Fix bug where paper names can't have commas
 Add tests for existing functionality
 Search for papers by graph proximity
 Sort paper queries by date added
