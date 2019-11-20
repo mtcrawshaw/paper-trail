@@ -1,5 +1,6 @@
 Add tests for existing functionality
 Add codecov
+Deal with cycles in reference graph (Undirected graph?)
 Search for papers by graph proximity
 Sort paper queries by date added
 Tab to autocomplete paper/author/topic name?

@@ -114,10 +114,9 @@ class Database:
             for authorName in self.papers[paperName].authorNames:
                 topic.authorNames.add(authorName)
                 self.authors[authorName].topicNames.add(topic.name)
-        
+
         # Add topic to database.
         self.topics[topic.name] = topic
-
 
     def removePaper(self, paperName: str):
         """
@@ -139,11 +138,25 @@ class Database:
                     self.papers[childName].parents.add(parentName)
                     self.papers[parentName].children.add(childName)
 
-            # Remove from authors and topics
+            # Remove paper from authors and topics
             for authorName in self.papers[paperName].authorNames:
                 self.authors[authorName].paperNames.remove(paperName)
             for topicName in self.papers[paperName].topicNames:
                 self.topics[topicName].paperNames.remove(paperName)
+
+            # Remove authors from topics if topic has no other papers under author
+            for authorName in self.papers[paperName].authorNames:
+                topicsUnderAuthor = set()
+                for paperUnderAuthor in self.authors[authorName].paperNames:
+                    topicsUnderAuthor |= self.papers[paperUnderAuthor].topicNames
+                self.authors[authorName].topicNames = set(topicsUnderAuthor)
+
+            # Remove topics from authors if author has no other papers under topic
+            for topicName in self.papers[paperName].topicNames:
+                authorsUnderTopic = set()
+                for paperUnderTopic in self.topics[topicName].paperNames:
+                    authorsUnderTopic |= self.papers[paperUnderTopic].authorNames
+                self.topics[topicName].authorNames = set(topicsUnderAuthor)
 
             # Remove from papers
             del self.papers[paperName]
@@ -234,5 +247,5 @@ class Database:
         Returns True if self == other, otherwise returns False.
         """
 
-        attributes = ['papers', 'topics', 'authors']
+        attributes = ["papers", "topics", "authors"]
         return all(getattr(self, attr) == getattr(other, attr) for attr in attributes)

@@ -40,18 +40,17 @@ class Paper:
         Returns True if self == other, otherwise returns False.
         """
         attributes = [
-            'name',
-            'abstract',
-            'datePublished',
-            'dateAdded',
-            'dateRead',
-            'link',
-            'read',
-            'parents',
-            'children',
-            'notes',
-            'authorNames',
-            'topicNames',
+            "name",
+            "abstract",
+            "datePublished",
+            "dateAdded",
+            "dateRead",
+            "link",
+            "read",
+            "parents",
+            "children",
+            "notes",
+            "authorNames",
+            "topicNames",
         ]
-        return all(getattr(self, attr) == getattr(other, attr) for attr in
-                attributes)
+        return all(getattr(self, attr) == getattr(other, attr) for attr in attributes)
