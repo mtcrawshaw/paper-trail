@@ -27,7 +27,7 @@ PAPERS = {
         {
             "name": "Deep Learning for Limit Order Books",
             "link": "https://arxiv.org/abs/1601.01987",
-            "topics": {"deep learning", "finance"},
+            "topics": {"deep learning", "stock trading"},
             "parents": set(),
             "children": {"The Measure of Intelligence"},
         },
@@ -94,7 +94,7 @@ class TestDatabase(unittest.TestCase):
         database.addTopic(
             Topic("theoretical deep learning", parents={"deep learning", "mathematics"})
         )
-        database.addTopic(Topic("finance", parents={"mathematics"}))
+        database.addTopic(Topic("stock trading", parents={"mathematics"}))
         database.addTopic(Topic("robotics", parents={"computer science"}))
         database.addTopic(Topic("meta learning", parents={"artificial intelligence"}))
 
@@ -219,11 +219,37 @@ class TestDatabase(unittest.TestCase):
         self.assertEqual(database.authors, expectedAuthors)
 
     def testAddTopic_2(self):
-        """ Add a topic to database, with parent and child. """
+        """
+        Add a topic to database, with parent and child topic, and linked to an
+        existing paper.
+        """
 
-        output = 1
-        expected = 2
-        self.assertEqual(output, expected)
+        # Add topic to database
+        database = self.getFilledDatabase()
+        linkedPaperName = list(database.papers.keys())[0]
+        parents = {"mathematics"}
+        children = {"stock trading"}
+        topicName = "finance"
+        topic = Topic(topicName, paperNames={linkedPaperName}, parents=parents,
+                children=children)
+        expectedPapers = dict(database.papers)
+        expectedTopics = dict(database.topics)
+        expectedAuthors = dict(database.authors)
+        database.addTopic(topic)
+
+        # Build expected output
+        expectedPapers[linkedPaperName].topicNames.add(topicName)
+        expectedTopics[topicName] = topic
+        for parent in parents:
+            expectedTopics[parent].children.add(topicName)
+        for child in children:
+            expectedTopics[child].parents.add(topicName)
+        for authorName in database.papers[linkedPaperName].authorNames:
+            expectedAuthors[authorName].topicNames.add(topicName)
+
+        self.assertEqual(database.papers, expectedPapers)
+        self.assertEqual(database.topics, expectedTopics)
+        self.assertEqual(database.authors, expectedAuthors)
 
     """
     Tests Database.removePaper
