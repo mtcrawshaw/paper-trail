@@ -283,9 +283,47 @@ class TestDatabase(unittest.TestCase):
     def testRemovePaper_2(self):
         """ Remove paper with parent, child, and topics from database. """
 
-        output = 1
-        expected = 2
-        self.assertEqual(output, expected)
+        # Get filled database
+        database = self.getFilledDatabase()
+        paperName = "Generalization Bounds for Convolutional Neural Networks"
+        expectedPapers = dict(database.papers)
+        expectedTopics = dict(database.topics)
+        expectedAuthors = dict(database.authors)
+        database.removePaper(paperName)
+
+        # Build expected output
+        parents = expectedPapers[paperName].parents
+        children = expectedPapers[paperName].children
+        topicNames = expectedPapers[paperName].topicNames
+        authorNames = expectedPapers[paperName].authorNames
+        del expectedPapers[paperName]
+        print(parents)
+        print(children)
+        print(expectedPapers.keys())
+        for parent in parents:
+            expectedPapers[parent].children.remove(paperName)
+        for child in children:
+            expectedPapers[child].parents.remove(paperName)
+        for parent in parents:
+            for child in children:
+                expectedPapers[parent].children.add(child)
+                expectedPapers[child].parents.add(parent)
+        for topicName in topicNames:
+            expectedTopics[topicName].papers.remove(paperName)
+        for authorName in authorNames:
+            expectedTopics[authorName].papers.remove(paperName)
+        for topicName in topicNames:
+            expectedTopics[topicName].authorNames = {}
+            for paper in expectedTopics[topicName].paperNames:
+                expectedTopics[topicName].authorNames |= expectedPapers[paper].authorNames
+        for authorName in authorNames:
+            expectedAuthors[authorName].topicNames = {}
+            for paper in expectedAuthors[authorName].paperNames:
+                expectedAuthors[authorName].topicNames |= expectedPapers[paper].topicNames
+
+        self.assertEqual(database.papers, expectedPapers)
+        self.assertEqual(database.topics, expectedTopics)
+        self.assertEqual(database.authors, expectedAuthors)
 
     """
     Tests Database.removeTopic
